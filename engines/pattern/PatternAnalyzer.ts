@@ -3,6 +3,28 @@ import type { PatternInsight } from './types';
 
 const MIN_EPISODES_FOR_INSIGHTS = 5;
 
+const STOPWORDS = new Set([
+  'a', 'al', 'alla', 'alle', 'agli', 'ai', 'che', 'chi', 'ci', 'col', 'con',
+  'da', 'dal', 'dalla', 'dalle', 'dagli', 'dai', 'degli', 'dei', 'del',
+  'della', 'delle', 'dello', 'di', 'e', 'ed', 'era', 'è', 'essere', 'fa',
+  'fare', 'gli', 'ha', 'hanno', 'ho', 'i', 'il', 'in', 'la', 'le', 'li',
+  'lo', 'ma', 'mi', 'mio', 'mia', 'molto', 'ne', 'nel', 'nella', 'nelle',
+  'negli', 'nei', 'non', 'o', 'per', 'più', 'può', 'quando', 'qui', 'se',
+  'si', 'sia', 'sono', 'sta', 'stavo', 'su', 'sua', 'sue', 'sui', 'sul',
+  'sulla', 'sulle', 'sugli', 'suo', 'suoi', 'ti', 'tra', 'tutto', 'un',
+  'una', 'uno', 'vi', 'vuole', 'con', 'come', 'però', 'anche', 'oggi',
+  'mio', 'mia', 'tuo', 'tua', 'lui', 'lei', 'noi', 'voi', 'loro', 'ho',
+  'ha', 'hai', 'abbiamo', 'avevo', 'aveva', 'stare', 'stato', 'stata',
+]);
+
+function extractKeywords(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^a-zàáâãäåèéêëìíîïòóôõöùúûü\s]/g, ' ')
+    .split(/\s+/)
+    .filter((w) => w.length > 3 && !STOPWORDS.has(w));
+}
+
 function getTimeOfDay(isoDate: string): string {
   const hour = new Date(isoDate).getHours();
   if (hour >= 6 && hour < 12) return 'mattina';
@@ -60,6 +82,27 @@ export const PatternAnalyzer = {
           data: { trend: 'increasing', diff },
         });
       }
+    }
+
+    // Insight 3: Parola/tema più frequente nelle situazioni
+    const wordCounts: Record<string, number> = {};
+    for (const ep of episodes) {
+      const words = extractKeywords(ep.situation);
+      const seen = new Set<string>();
+      for (const w of words) {
+        if (!seen.has(w)) {
+          wordCounts[w] = (wordCounts[w] ?? 0) + 1;
+          seen.add(w);
+        }
+      }
+    }
+    const topWord = Object.entries(wordCounts).sort((a, b) => b[1] - a[1])[0];
+    if (topWord && topWord[1] >= 3) {
+      insights.push({
+        type: 'frequent_situation',
+        message: `La parola "${topWord[0]}" ricorre spesso nelle tue situazioni difficili.`,
+        data: { word: topWord[0], count: topWord[1] },
+      });
     }
 
     return insights;

@@ -12,13 +12,13 @@ import type { SafetyResult } from '@/engines/safety/types';
  * @returns     Risultato safety corrente
  */
 export function useSafety(text: string): SafetyResult {
-  const { setLevel, setLastCheckedText, currentLevel, matchedClusters, score } =
+  const { setResult, setLastCheckedText, currentLevel, currentScore, currentMatchedClusters } =
     useSafetyStore((s) => ({
-      setLevel: s.setLevel,
+      setResult: s.setResult,
       setLastCheckedText: s.setLastCheckedText,
       currentLevel: s.currentLevel,
-      matchedClusters: [] as string[],
-      score: 0,
+      currentScore: s.currentScore,
+      currentMatchedClusters: s.currentMatchedClusters,
     }));
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -27,25 +27,24 @@ export function useSafety(text: string): SafetyResult {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     if (text.length < SAFETY_MIN_TEXT_LENGTH) {
-      setLevel('SAFE');
+      setResult('SAFE', 0, []);
       return;
     }
 
     timerRef.current = setTimeout(() => {
       const result = SafetyEngine.analyze(text);
-      setLevel(result.level);
+      setResult(result.level, result.score, result.matchedClusters);
       setLastCheckedText(text);
     }, SAFETY_CHECK_DEBOUNCE_MS);
 
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [text, setLevel, setLastCheckedText]);
+  }, [text, setResult, setLastCheckedText]);
 
-  // Ritorna il risultato corrente dallo store (calcolato nell'effect)
   return {
     level: currentLevel,
-    score: 0,
-    matchedClusters: [],
+    score: currentScore,
+    matchedClusters: currentMatchedClusters,
   };
 }
