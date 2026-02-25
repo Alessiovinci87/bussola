@@ -1,98 +1,238 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  TextInput,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { AppText } from '@/components/ui/AppText';
+import { Spacer } from '@/components/ui/Spacer';
+import { SuggestionCard } from '@/components/suggestion/SuggestionCard';
+import { FeedbackRow } from '@/components/suggestion/FeedbackRow';
+import { IntensityPicker } from '@/components/episode/IntensityPicker';
+import { CrisisOverlay } from '@/components/safety/CrisisOverlay';
+import { useSafety } from '@/hooks/useSafety';
+import { useSuggestions } from '@/hooks/useSuggestions';
+import { useEpisodes } from '@/hooks/useEpisodes';
+import { useFeedbackStore } from '@/stores/feedbackStore';
+import { useSafetyStore } from '@/stores/safetyStore';
+import { Colors, Spacing, Radius, Palette, FontSize } from '@/constants/theme';
+import { useColorScheme } from '@/hooks/use-color-scheme';
+import type { Strategy } from '@/content/strategies';
+import type { Episode } from '@/types';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const scheme = useColorScheme() ?? 'light';
+  const theme = Colors[scheme];
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const [situation, setSituation] = useState('');
+  const [intensity, setIntensity] = useState<Episode['intensity']>(3);
+  const [selectedStrategy, setSelectedStrategy] = useState<Strategy | null>(null);
+  const [savedEpisodeId, setSavedEpisodeId] = useState<string | null>(null);
+
+  const safetyResult = useSafety(situation);
+  const suggestions = useSuggestions(situation, intensity);
+  const { add: addEpisode, setOutcome } = useEpisodes();
+  const { addFeedback } = useFeedbackStore();
+  const { isCrisisMode, resolveCrisis } = useSafetyStore();
+
+  const isCrisis = safetyResult.level === 'CRISIS';
+
+  const handleSelectStrategy = useCallback(
+    async (strategy: Strategy) => {
+      setSelectedStrategy(strategy);
+      const episode = await addEpisode({
+        situation,
+        intensity,
+        safetyFlagActivated: isCrisis,
+        strategyApplied: strategy.id,
+      });
+      setSavedEpisodeId(episode.id);
+    },
+    [situation, intensity, isCrisis, addEpisode]
+  );
+
+  const handleFeedback = useCallback(
+    async (strategyId: string, value: 'useful' | 'not_useful') => {
+      await addFeedback(strategyId, value);
+      if (savedEpisodeId) {
+        await setOutcome(savedEpisodeId, value === 'useful' ? 'resolved' : 'partially');
+      }
+    },
+    [addFeedback, savedEpisodeId, setOutcome]
+  );
+
+  const handleReset = useCallback(() => {
+    setSituation('');
+    setIntensity(3);
+    setSelectedStrategy(null);
+    setSavedEpisodeId(null);
+  }, []);
+
+  const handleCrisisResolve = useCallback(async () => {
+    resolveCrisis();
+    if (!savedEpisodeId) {
+      const episode = await addEpisode({
+        situation,
+        intensity: 5,
+        safetyFlagActivated: true,
+      });
+      setSavedEpisodeId(episode.id);
+    }
+  }, [resolveCrisis, addEpisode, situation, savedEpisodeId]);
+
+  const showSuggestions = suggestions.length > 0 && !selectedStrategy;
+  const showFeedback = !!selectedStrategy;
+
+  return (
+    <>
+      <CrisisOverlay visible={isCrisisMode} onResolve={handleCrisisResolve} />
+
+      <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.header}>
+              <AppText variant="heading" weight="bold">
+                Cosa sta succedendo?
+              </AppText>
+              <AppText secondary variant="body" style={styles.headerSub}>
+                Descrivi la situazione in poche parole
+              </AppText>
+            </View>
+
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.surface,
+                  borderColor:
+                    safetyResult.level === 'ALERT'
+                      ? Palette.alertOrange
+                      : safetyResult.level === 'WATCH'
+                      ? Palette.watchYellow
+                      : theme.border,
+                  color: theme.text,
+                },
+              ]}
+              value={situation}
+              onChangeText={setSituation}
+              placeholder="Es: sta facendo un capriccio da 20 minuti..."
+              placeholderTextColor={theme.textSecondary}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+              accessibilityLabel="Descrivi la situazione"
+            />
+
+            {safetyResult.level === 'WATCH' && (
+              <View style={[styles.safetyHint, { backgroundColor: Palette.watchYellow + '22' }]}>
+                <AppText style={{ color: Palette.watchYellow, fontSize: FontSize.sm }}>
+                  ⚠ Sembra una situazione tesa. Respira prima di agire.
+                </AppText>
+              </View>
+            )}
+            {safetyResult.level === 'ALERT' && (
+              <View style={[styles.safetyHint, { backgroundColor: Palette.alertOrange + '22' }]}>
+                <AppText style={{ color: Palette.alertOrange, fontSize: FontSize.sm }}>
+                  ⚠ Segnali preoccupanti. Hai bisogno di una pausa adesso?
+                </AppText>
+              </View>
+            )}
+
+            <Spacer size="md" />
+            <IntensityPicker value={intensity} onChange={setIntensity} />
+            <Spacer size="lg" />
+
+            {showSuggestions && (
+              <>
+                <AppText variant="label">Prova adesso:</AppText>
+                <Spacer size="sm" />
+                {suggestions.map((s) => (
+                  <SuggestionCard key={s.id} strategy={s} onSelect={handleSelectStrategy} />
+                ))}
+              </>
+            )}
+
+            {showFeedback && (
+              <View
+                style={[
+                  styles.feedbackBox,
+                  { backgroundColor: theme.surface, borderColor: theme.border },
+                ]}
+              >
+                <AppText variant="bodyLarge" weight="semibold">
+                  Hai usato: {selectedStrategy!.title}
+                </AppText>
+                <FeedbackRow strategyId={selectedStrategy!.id} onFeedback={handleFeedback} />
+                <Spacer size="md" />
+                <AppText style={styles.resetLink} onPress={handleReset}>
+                  Nuova situazione →
+                </AppText>
+              </View>
+            )}
+
+            {!situation.trim() && (
+              <View style={styles.placeholder}>
+                <AppText style={styles.placeholderEmoji}>🧭</AppText>
+                <AppText secondary variant="body" style={styles.placeholderText}>
+                  Scrivi cosa sta succedendo e ti suggerirò cosa fare adesso.
+                </AppText>
+              </View>
+            )}
+
+            <Spacer size="xxl" />
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  safe: { flex: 1 },
+  flex: { flex: 1 },
+  scroll: { padding: Spacing.md },
+  header: { marginBottom: Spacing.md },
+  headerSub: { marginTop: Spacing.xs },
+  input: {
+    borderWidth: 1.5,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    minHeight: 100,
+    fontSize: FontSize.md,
+    lineHeight: 24,
+  },
+  safetyHint: {
+    marginTop: Spacing.sm,
+    padding: Spacing.sm,
+    borderRadius: Radius.md,
+  },
+  feedbackBox: {
+    padding: Spacing.md,
+    borderRadius: Radius.lg,
+    borderWidth: 1,
+  },
+  resetLink: {
+    color: Palette.primary,
+    fontSize: FontSize.md,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  placeholder: {
     alignItems: 'center',
-    gap: 8,
+    paddingVertical: Spacing.xxl,
+    gap: Spacing.md,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  placeholderEmoji: { fontSize: 48 },
+  placeholderText: { textAlign: 'center', maxWidth: 280 },
 });

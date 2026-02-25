@@ -4,6 +4,122 @@
     "cancel": "Annulla",
     "save": "Salva",
     "delete": "Elimina",
-    "loading": "Caricamento..."
+    "loading": "Caricamento...",
+    "back": "Indietro",
+    "confirm": "Conferma",
+    "close": "Chiudi"
+  },
+  "tabs": {
+    "assistant": "Assistente",
+    "history": "Storico",
+    "learn": "Impara",
+    "settings": "Impostazioni"
+  },
+  "home": {
+    "title": "Cosa sta succedendo?",
+    "subtitle": "Descrivi la situazione in poche parole",
+    "inputPlaceholder": "Es: sta facendo un capriccio da 20 minuti...",
+    "suggestionsTitle": "Prova adesso:",
+    "placeholderText": "Scrivi cosa sta succedendo e ti suggerirò cosa fare adesso.",
+    "newSituation": "Nuova situazione →",
+    "usedStrategy": "Hai usato:"
+  },
+  "safety": {
+    "watchHint": "⚠ Sembra una situazione tesa. Respira prima di agire.",
+    "alertHint": "⚠ Segnali preoccupanti. Hai bisogno di una pausa adesso?",
+    "crisisTitle": "Fermati un momento",
+    "crisisSubtitle": "Sembra una situazione difficile. Fai queste 3 cose adesso:",
+    "crisisAction1": "Metti il bambino in un posto sicuro",
+    "crisisAction1Sub": "Lettino, box, stanza sicura",
+    "crisisAction2": "Esci dalla stanza",
+    "crisisAction2Sub": "Anche solo 5 minuti bastano",
+    "crisisAction3": "Chiama qualcuno adesso",
+    "crisisAction3Sub": "Partner, genitore, amico — non restare solo",
+    "crisisResolved": "La crisi è passata",
+    "disclaimer": "Bussola non sostituisce supporto professionale.\nIn caso di pericolo immediato chiama il 112."
+  },
+  "intensity": {
+    "question": "Quanto è intensa la situazione?",
+    "labels": {
+      "1": "Molto bassa",
+      "2": "Bassa",
+      "3": "Media",
+      "4": "Alta",
+      "5": "Molto alta"
+    }
+  },
+  "feedback": {
+    "question": "È stata utile?",
+    "useful": "Sì, utile",
+    "notUseful": "No, non utile",
+    "thanksUseful": "Grazie per il feedback!",
+    "thanksNotUseful": "Capito, ci aiuterai a migliorare."
+  },
+  "history": {
+    "title": "Storico",
+    "episodesCount": "{{count}} episodi registrati",
+    "patternsTitle": "Cosa noti:",
+    "weekLabel": "Settimana del {{date}}",
+    "empty": "Nessun episodio ancora.\nUsa l'Assistente per registrare il primo.",
+    "safetyFlagBadge": "⚠ Crisi"
+  },
+  "episode": {
+    "situation": "Situazione",
+    "strategy": "Strategia applicata",
+    "outcome": "Esito",
+    "duration": "Durata",
+    "durationMinutes": "{{count}} minuti",
+    "safetyActivated": "⚠ Crisi attivata durante questo episodio",
+    "deleteTitle": "Elimina episodio",
+    "deleteConfirm": "Sei sicuro di voler eliminare questo episodio?",
+    "notFound": "Episodio non trovato.",
+    "outcomes": {
+      "resolved": "✅ Risolto",
+      "partially": "⚠ Parzialmente risolto",
+      "unresolved": "❌ Non risolto"
+    }
+  },
+  "learn": {
+    "title": "Errori comuni",
+    "subtitle": "{{count}} scenari. Tocca per approfondire.",
+    "mythLabel": "Il mito",
+    "realityLabel": "La realtà",
+    "whatToDoLabel": "Cosa fare invece:"
+  },
+  "settings": {
+    "title": "Impostazioni",
+    "ageRangeLabel": "Età del bambino (opzionale)",
+    "sensitivitiesLabel": "Aree di sensibilità",
+    "sensitivitiesCaption": "Aiutano a personalizzare i suggerimenti (opzionale, nessuna diagnosi)",
+    "themeLabel": "Tema",
+    "themes": {
+      "system": "Sistema",
+      "light": "Chiaro",
+      "dark": "Scuro"
+    },
+    "sensitivities": {
+      "aggression": "Aggressività",
+      "anxiety": "Ansia",
+      "sleep": "Sonno",
+      "food": "Cibo",
+      "school": "Scuola",
+      "transitions": "Transizioni"
+    },
+    "ageRanges": {
+      "0-2": "0–2 anni",
+      "3-5": "3–5 anni",
+      "6-9": "6–9 anni",
+      "10-12": "10–12 anni",
+      "13+": "13+ anni"
+    },
+    "disclaimer": "🔒 Tutti i dati rimangono sul tuo dispositivo. Bussola non invia nulla esternamente e non sostituisce il supporto professionale.\n\nIn caso di emergenza chiama il 112."
+  },
+  "patterns": {
+    "timeOfDayInsight": "La maggior parte degli episodi avviene di {{time}}.",
+    "intensityIncreasing": "Nelle ultime settimane l'intensità degli episodi è aumentata.",
+    "intensityDecreasing": "Nelle ultime settimane l'intensità degli episodi è diminuita."
+  },
+  "notifications": {
+    "defaultMessage": "Come stai? Hai qualcosa da registrare oggi?"
   }
 }
