@@ -52,6 +52,8 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={26} name="gearshape.fill" color={color} />,
         }}
       />
+      {/* Sopprime il file explore.tsx del template originale — non fa parte di Bussola */}
+      <Tabs.Screen name="explore" options={{ href: null }} />
     </Tabs>
   );
 }
