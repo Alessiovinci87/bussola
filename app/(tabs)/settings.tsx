@@ -1,10 +1,19 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Switch } from 'react-native';
+import {
+  View,
+  ScrollView,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  Switch,
+  Alert,
+} from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Spacer } from '@/components/ui/Spacer';
 import { Card } from '@/components/ui/Card';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useProfileStore } from '@/stores/profileStore';
+import { useReminder } from '@/hooks/useReminder';
 import { Colors, Spacing, Radius, Palette, FontSize, TouchTarget } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import type { AgeRange, ProfileSensitivity, ThemeMode } from '@/types';
@@ -32,11 +41,32 @@ const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
   { value: 'dark', label: 'Scuro' },
 ];
 
+// Orari comuni per il reminder (mattina e sera)
+const REMINDER_HOURS = [7, 8, 9, 12, 17, 18, 19, 20, 21];
+
 export default function SettingsScreen() {
   const scheme = useColorScheme() ?? 'light';
   const theme = Colors[scheme];
   const { theme: themeMode, setTheme } = useSettingsStore();
   const { profile, setAgeRange, toggleSensitivity } = useProfileStore();
+  const { reminder, enable, disable, updateTime, formatTime } = useReminder();
+
+  const handleReminderToggle = async (value: boolean) => {
+    if (value) {
+      const granted = await enable();
+      if (!granted) {
+        Alert.alert(
+          'Permesso notifiche',
+          'Per attivare il reminder giornaliero devi consentire le notifiche nelle impostazioni del dispositivo.',
+          [{ text: 'OK' }]
+        );
+      }
+    } else {
+      await disable();
+    }
+  };
+
+  const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -111,6 +141,112 @@ export default function SettingsScreen() {
               </View>
             );
           })}
+        </Card>
+
+        <Spacer size="lg" />
+
+        {/* Reminder giornaliero */}
+        <AppText variant="label">Reminder giornaliero</AppText>
+        <Spacer size="xs" />
+        <AppText secondary variant="caption">
+          Un promemoria quotidiano per riflettere sulla giornata (opzionale)
+        </AppText>
+        <Spacer size="sm" />
+        <Card padding="sm">
+          {/* Toggle abilitazione */}
+          <View style={styles.reminderToggleRow}>
+            <View style={styles.reminderToggleLeft}>
+              <AppText variant="body" weight="semibold">
+                🔔 Reminder attivo
+              </AppText>
+              {reminder.enabled && (
+                <AppText secondary variant="caption">
+                  Ogni giorno alle {formatTime()}
+                </AppText>
+              )}
+            </View>
+            <Switch
+              value={reminder.enabled}
+              onValueChange={handleReminderToggle}
+              trackColor={{ true: Palette.primary }}
+              accessibilityLabel="Attiva reminder giornaliero"
+            />
+          </View>
+
+          {/* Selettore orario — visibile solo se abilitato */}
+          {reminder.enabled && (
+            <>
+              <View style={[styles.divider, { backgroundColor: theme.border }]} />
+              <Spacer size="sm" />
+              <AppText secondary variant="caption" style={styles.timeLabel}>
+                Orario
+              </AppText>
+              <Spacer size="xs" />
+              <View style={styles.chipRow}>
+                {REMINDER_HOURS.map((h) => {
+                  const selected = reminder.hour === h;
+                  return (
+                    <TouchableOpacity
+                      key={h}
+                      style={[
+                        styles.chip,
+                        { borderColor: selected ? Palette.primary : theme.border },
+                        selected && { backgroundColor: Palette.primaryLight },
+                      ]}
+                      onPress={() => updateTime(h, reminder.minute)}
+                      accessibilityRole="radio"
+                      accessibilityLabel={`${pad(h)}:${pad(reminder.minute)}`}
+                      accessibilityState={{ selected }}
+                    >
+                      <AppText
+                        style={[
+                          styles.chipText,
+                          { color: selected ? Palette.primary : theme.text },
+                        ]}
+                        weight={selected ? 'semibold' : 'regular'}
+                      >
+                        {pad(h)}:00
+                      </AppText>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <Spacer size="sm" />
+              <AppText secondary variant="caption" style={styles.timeLabel}>
+                Minuti
+              </AppText>
+              <Spacer size="xs" />
+              <View style={styles.chipRow}>
+                {([0, 30] as const).map((m) => {
+                  const selected = reminder.minute === m;
+                  return (
+                    <TouchableOpacity
+                      key={m}
+                      style={[
+                        styles.chip,
+                        { borderColor: selected ? Palette.primary : theme.border },
+                        selected && { backgroundColor: Palette.primaryLight },
+                      ]}
+                      onPress={() => updateTime(reminder.hour, m)}
+                      accessibilityRole="radio"
+                      accessibilityLabel={`:${pad(m)}`}
+                      accessibilityState={{ selected }}
+                    >
+                      <AppText
+                        style={[
+                          styles.chipText,
+                          { color: selected ? Palette.primary : theme.text },
+                        ]}
+                        weight={selected ? 'semibold' : 'regular'}
+                      >
+                        :{pad(m)}
+                      </AppText>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          )}
         </Card>
 
         <Spacer size="lg" />
@@ -194,6 +330,15 @@ const styles = StyleSheet.create({
   },
   sensitivityEmoji: { fontSize: 20, width: 28 },
   sensitivityLabel: { flex: 1 },
+  reminderToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: TouchTarget.min,
+    paddingHorizontal: Spacing.xs,
+    gap: Spacing.sm,
+  },
+  reminderToggleLeft: { flex: 1 },
+  timeLabel: { paddingHorizontal: Spacing.xs },
   disclaimer: {
     borderWidth: 1,
     borderRadius: Radius.md,

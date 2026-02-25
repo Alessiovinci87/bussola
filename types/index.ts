@@ -45,3 +45,9 @@ export interface PatternInsight {
   message: string; // già tradotto
   data: Record<string, unknown>;
 }
+
+export interface ReminderSettings {
+  enabled: boolean;
+  hour: number; // 0-23
+  minute: 0 | 30;
+}
