@@ -1,0 +1,9 @@
+{
+  "common": {
+    "ok": "OK",
+    "cancel": "Annulla",
+    "save": "Salva",
+    "delete": "Elimina",
+    "loading": "Caricamento..."
+  }
+}
