@@ -8,6 +8,13 @@ const config = getDefaultConfig(__dirname);
 // Usa il campo "exports" di package.json per risoluzione cross-platform
 config.resolver.unstable_enablePackageExports = true;
 
+// Metro ignora node_modules per default, ma questi pacchetti usano import.meta
+// (es. zustand v5 usa import.meta.env, gesture-handler, i18next, expo packages).
+// Questa regex dice a Metro: trasforma tutto TRANNE i node_modules non elencati.
+config.transformer.transformIgnorePatterns = [
+  'node_modules/(?!(react-native|@react-native|@react-navigation|expo|@expo|react-native-gesture-handler|react-native-safe-area-context|react-native-screens|react-native-reanimated|react-native-worklets|zustand|i18next|react-i18next)/)',
+];
+
 // Su web: rimpiazza react-native-reanimated e react-native-worklets con stub compatibili.
 // Entrambe le librerie usano import.meta.url (ES module) per caricare web workers —
 // sintassi non supportata da Metro bundler (che genera bundle CJS/IIFE).
