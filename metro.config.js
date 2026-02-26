@@ -14,16 +14,18 @@ config.resolver.unstable_enablePackageExports = true;
 // Lo stub espone la stessa API con no-op, senza import.meta.
 const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
-  if (
-    platform === 'web' &&
-    (moduleName === 'react-native-reanimated' ||
-      moduleName === 'react-native-reanimated/src/index' ||
-      moduleName === 'react-native-reanimated/lib/module/index')
-  ) {
-    return {
-      filePath: path.resolve(__dirname, 'stubs/reanimated-web-stub.js'),
-      type: 'sourceFile',
-    };
+  if (platform === 'web') {
+    if (
+      moduleName === 'react-native-reanimated' ||
+      moduleName.startsWith('react-native-reanimated/') ||
+      moduleName === 'react-native-worklets' ||
+      moduleName.startsWith('react-native-worklets/')
+    ) {
+      return {
+        filePath: path.resolve(__dirname, 'stubs/reanimated-web-stub.js'),
+        type: 'sourceFile',
+      };
+    }
   }
   if (originalResolveRequest) {
     return originalResolveRequest(context, moduleName, platform);
