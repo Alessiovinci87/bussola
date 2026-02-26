@@ -3,37 +3,42 @@ import { Platform } from 'react-native';
 // ─── Colori ──────────────────────────────────────────────────────────────────
 
 export const Palette = {
-  // Brand
-  primary: '#2563EB',
-  primaryDark: '#1D4ED8',
-  primaryLight: '#DBEAFE',
+  // Brand — Indaco calmo (più rassicurante del blu elettrico)
+  primary: '#5B6AF9',
+  primaryDark: '#4355E0',
+  primaryLight: '#EDEFFF',
+  primaryMid: '#8B98FB',
 
   // Safety levels
   safeGreen: '#16A34A',
+  safeGreenLight: '#DCFCE7',
   watchYellow: '#D97706',
+  watchYellowLight: '#FEF9C3',
   alertOrange: '#EA580C',
+  alertOrangeLight: '#FFEDD5',
   crisisRed: '#DC2626',
   crisisRedDark: '#991B1B',
   crisisRedLight: '#FEE2E2',
 
-  // Neutral
+  // Neutral — leggera tinta fredda per un feel calmo
   white: '#FFFFFF',
-  gray50: '#F9FAFB',
-  gray100: '#F3F4F6',
-  gray200: '#E5E7EB',
-  gray300: '#D1D5DB',
-  gray400: '#9CA3AF',
-  gray500: '#6B7280',
-  gray600: '#4B5563',
-  gray700: '#374151',
-  gray800: '#1F2937',
-  gray900: '#111827',
+  gray50: '#F7F8FD',
+  gray100: '#EFF0F9',
+  gray200: '#E2E4EF',
+  gray300: '#C8CADF',
+  gray400: '#9698B4',
+  gray500: '#6B6E8C',
+  gray600: '#4C5068',
+  gray700: '#373A54',
+  gray800: '#23253C',
+  gray900: '#14162A',
   black: '#000000',
 
-  // Dark mode backgrounds
-  darkBg: '#0F172A',
-  darkSurface: '#1E293B',
-  darkBorder: '#334155',
+  // Dark mode
+  darkBg: '#0E0F1E',
+  darkSurface: '#171829',
+  darkSurface2: '#1E2038',
+  darkBorder: '#2D3052',
 } as const;
 
 export const Colors = {
@@ -42,22 +47,26 @@ export const Colors = {
     textSecondary: Palette.gray500,
     background: Palette.gray50,
     surface: Palette.white,
+    surfaceElevated: Palette.white,
     border: Palette.gray200,
+    borderStrong: Palette.gray300,
     tint: Palette.primary,
     icon: Palette.gray500,
     tabIconDefault: Palette.gray400,
     tabIconSelected: Palette.primary,
   },
   dark: {
-    text: '#F1F5F9',
-    textSecondary: '#94A3B8',
+    text: '#EEF0FF',
+    textSecondary: '#9698B4',
     background: Palette.darkBg,
     surface: Palette.darkSurface,
+    surfaceElevated: Palette.darkSurface2,
     border: Palette.darkBorder,
-    tint: '#60A5FA',
-    icon: '#94A3B8',
-    tabIconDefault: '#64748B',
-    tabIconSelected: '#60A5FA',
+    borderStrong: '#3D4168',
+    tint: Palette.primaryMid,
+    icon: '#9698B4',
+    tabIconDefault: '#6B6E8C',
+    tabIconSelected: Palette.primaryMid,
   },
 } as const;
 
@@ -79,6 +88,7 @@ export const Radius = {
   md: 12,
   lg: 16,
   xl: 24,
+  xxl: 32,
   full: 9999,
 } as const;
 
@@ -116,28 +126,35 @@ export const Fonts = Platform.select({
   },
 });
 
-// ─── Touch target minimo (principio UX: genitore stressato) ──────────────────
+// ─── Touch target ─────────────────────────────────────────────────────────────
 
 export const TouchTarget = {
-  min: 48,   // px — WCAG + Apple HIG
-  large: 64, // px — azioni primarie
+  min: 48,
+  large: 56,
 } as const;
 
-// ─── Ombre ────────────────────────────────────────────────────────────────────
+// ─── Ombre — tinte con il colore primario per un feel premium ─────────────────
 
 export const Shadow = {
   sm: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowColor: Palette.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowColor: Palette.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+  },
+  lg: {
+    shadowColor: Palette.primary,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 10,
   },
 } as const;

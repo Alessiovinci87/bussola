@@ -6,10 +6,11 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 interface CardProps {
   children: React.ReactNode;
   style?: ViewStyle;
-  padding?: 'sm' | 'md' | 'lg';
+  padding?: 'none' | 'sm' | 'md' | 'lg';
+  elevated?: boolean;
 }
 
-export function Card({ children, style, padding = 'md' }: CardProps) {
+export function Card({ children, style, padding = 'md', elevated = false }: CardProps) {
   const scheme = useColorScheme() ?? 'light';
   const theme = Colors[scheme];
 
@@ -17,9 +18,9 @@ export function Card({ children, style, padding = 'md' }: CardProps) {
     <View
       style={[
         styles.base,
-        { backgroundColor: theme.surface, borderColor: theme.border },
-        styles[`pad_${padding}`],
-        Shadow.sm,
+        { backgroundColor: elevated ? theme.surfaceElevated : theme.surface },
+        padding !== 'none' && styles[`pad_${padding}`],
+        elevated ? Shadow.md : Shadow.sm,
         style,
       ]}
     >
@@ -30,10 +31,9 @@ export function Card({ children, style, padding = 'md' }: CardProps) {
 
 const styles = StyleSheet.create({
   base: {
-    borderRadius: Radius.lg,
-    borderWidth: 1,
+    borderRadius: Radius.xl,
   },
-  pad_sm: { padding: Spacing.sm },
+  pad_sm: { padding: Spacing.sm + 4 },
   pad_md: { padding: Spacing.md },
   pad_lg: { padding: Spacing.lg },
 });

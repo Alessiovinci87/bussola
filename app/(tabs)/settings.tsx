@@ -10,11 +10,10 @@ import {
 } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Spacer } from '@/components/ui/Spacer';
-import { Card } from '@/components/ui/Card';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useProfileStore } from '@/stores/profileStore';
 import { useReminder } from '@/hooks/useReminder';
-import { Colors, Spacing, Radius, Palette, FontSize, TouchTarget } from '@/constants/theme';
+import { Colors, Spacing, Radius, Palette, FontSize, TouchTarget, Shadow } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import type { AgeRange, ProfileSensitivity, ThemeMode } from '@/types';
 
@@ -35,13 +34,12 @@ const SENSITIVITIES: { value: ProfileSensitivity; label: string; emoji: string }
   { value: 'transitions', label: 'Transizioni', emoji: '🔄' },
 ];
 
-const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
-  { value: 'system', label: 'Sistema' },
-  { value: 'light', label: 'Chiaro' },
-  { value: 'dark', label: 'Scuro' },
+const THEME_OPTIONS: { value: ThemeMode; label: string; emoji: string }[] = [
+  { value: 'system', label: 'Sistema', emoji: '⚙️' },
+  { value: 'light', label: 'Chiaro', emoji: '☀️' },
+  { value: 'dark', label: 'Scuro', emoji: '🌙' },
 ];
 
-// Orari comuni per il reminder (mattina e sera)
 const REMINDER_HOURS = [7, 8, 9, 12, 17, 18, 19, 20, 21];
 
 export default function SettingsScreen() {
@@ -70,26 +68,38 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <AppText variant="heading" weight="bold">
+      {/* Header branded */}
+      <View style={[styles.heroHeader, { backgroundColor: Palette.primaryLight }]}>
+        <AppText variant="subheading" weight="bold" style={{ color: Palette.primaryDark }}>
           Impostazioni
         </AppText>
-        <Spacer size="lg" />
+        <AppText variant="caption" style={{ color: Palette.primary, marginTop: 2 }}>
+          Personalizza la tua esperienza
+        </AppText>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
         {/* Età bambino */}
-        <AppText variant="label">Età del bambino (opzionale)</AppText>
+        <AppText variant="label" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+          ETÀ DEL BAMBINO
+        </AppText>
+        <AppText secondary variant="caption" style={styles.sectionHint}>
+          Opzionale — migliora la pertinenza dei suggerimenti
+        </AppText>
         <Spacer size="sm" />
-        <Card padding="sm">
+        <View style={[styles.sectionCard, { backgroundColor: theme.surface }, Shadow.sm]}>
           <View style={styles.chipRow}>
             {AGE_RANGES.map((range) => {
               const selected = profile.childAgeRange === range.value;
               return (
                 <Pressable
                   key={range.value}
-                  style={[
+                  style={({ pressed }) => [
                     styles.chip,
                     { borderColor: selected ? Palette.primary : theme.border },
                     selected && { backgroundColor: Palette.primaryLight },
+                    pressed && { opacity: 0.75 },
                   ]}
                   onPress={() => setAgeRange(range.value)}
                   accessibilityRole="radio"
@@ -97,10 +107,7 @@ export default function SettingsScreen() {
                   accessibilityState={{ selected }}
                 >
                   <AppText
-                    style={[
-                      styles.chipText,
-                      { color: selected ? Palette.primary : theme.text },
-                    ]}
+                    style={[styles.chipText, { color: selected ? Palette.primary : theme.text }]}
                     weight={selected ? 'semibold' : 'regular'}
                   >
                     {range.label}
@@ -109,56 +116,61 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-        </Card>
+        </View>
 
-        <Spacer size="lg" />
+        <Spacer size="xl" />
 
         {/* Aree di sensibilità */}
-        <AppText variant="label">Aree di sensibilità</AppText>
-        <Spacer size="xs" />
-        <AppText secondary variant="caption">
-          Aiutano a personalizzare i suggerimenti (opzionale, nessuna diagnosi)
+        <AppText variant="label" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+          AREE DI SENSIBILITÀ
+        </AppText>
+        <AppText secondary variant="caption" style={styles.sectionHint}>
+          Personalizzano i suggerimenti — nessuna diagnosi
         </AppText>
         <Spacer size="sm" />
-        <Card padding="sm">
+        <View style={[styles.sectionCard, { backgroundColor: theme.surface }, Shadow.sm]}>
           {SENSITIVITIES.map((s, i) => {
             const active = profile.sensitivities.includes(s.value);
             return (
               <View key={s.value}>
                 {i > 0 && <View style={[styles.divider, { backgroundColor: theme.border }]} />}
-                <View style={styles.sensitivityRow}>
-                  <AppText style={styles.sensitivityEmoji}>{s.emoji}</AppText>
-                  <AppText variant="body" style={styles.sensitivityLabel}>
+                <View style={styles.rowItem}>
+                  <View style={[styles.emojiWrap, { backgroundColor: active ? Palette.primaryLight : theme.background }]}>
+                    <AppText style={styles.rowEmoji}>{s.emoji}</AppText>
+                  </View>
+                  <AppText variant="body" style={styles.rowLabel}>
                     {s.label}
                   </AppText>
                   <Switch
                     value={active}
                     onValueChange={() => toggleSensitivity(s.value)}
-                    trackColor={{ true: Palette.primary }}
+                    trackColor={{ false: theme.border, true: Palette.primary }}
+                    thumbColor="#FFFFFF"
                     accessibilityLabel={s.label}
                   />
                 </View>
               </View>
             );
           })}
-        </Card>
+        </View>
 
-        <Spacer size="lg" />
+        <Spacer size="xl" />
 
         {/* Reminder giornaliero */}
-        <AppText variant="label">Reminder giornaliero</AppText>
-        <Spacer size="xs" />
-        <AppText secondary variant="caption">
-          Un promemoria quotidiano per riflettere sulla giornata (opzionale)
+        <AppText variant="label" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+          REMINDER GIORNALIERO
+        </AppText>
+        <AppText secondary variant="caption" style={styles.sectionHint}>
+          Un promemoria quotidiano per riflettere sulla giornata
         </AppText>
         <Spacer size="sm" />
-        <Card padding="sm">
-          {/* Toggle abilitazione */}
-          <View style={styles.reminderToggleRow}>
-            <View style={styles.reminderToggleLeft}>
-              <AppText variant="body" weight="semibold">
-                🔔 Reminder attivo
-              </AppText>
+        <View style={[styles.sectionCard, { backgroundColor: theme.surface }, Shadow.sm]}>
+          <View style={styles.rowItem}>
+            <View style={[styles.emojiWrap, { backgroundColor: reminder.enabled ? Palette.primaryLight : theme.background }]}>
+              <AppText style={styles.rowEmoji}>🔔</AppText>
+            </View>
+            <View style={styles.reminderToggleText}>
+              <AppText variant="body" weight="semibold">Reminder attivo</AppText>
               {reminder.enabled && (
                 <AppText secondary variant="caption">
                   Ogni giorno alle {formatTime()}
@@ -168,19 +180,17 @@ export default function SettingsScreen() {
             <Switch
               value={reminder.enabled}
               onValueChange={handleReminderToggle}
-              trackColor={{ true: Palette.primary }}
+              trackColor={{ false: theme.border, true: Palette.primary }}
+              thumbColor="#FFFFFF"
               accessibilityLabel="Attiva reminder giornaliero"
             />
           </View>
 
-          {/* Selettore orario — visibile solo se abilitato */}
           {reminder.enabled && (
             <>
               <View style={[styles.divider, { backgroundColor: theme.border }]} />
               <Spacer size="sm" />
-              <AppText secondary variant="caption" style={styles.timeLabel}>
-                Orario
-              </AppText>
+              <AppText secondary variant="caption" style={styles.timeGroupLabel}>Ora</AppText>
               <Spacer size="xs" />
               <View style={styles.chipRow}>
                 {REMINDER_HOURS.map((h) => {
@@ -188,10 +198,11 @@ export default function SettingsScreen() {
                   return (
                     <Pressable
                       key={h}
-                      style={[
+                      style={({ pressed }) => [
                         styles.chip,
                         { borderColor: selected ? Palette.primary : theme.border },
                         selected && { backgroundColor: Palette.primaryLight },
+                        pressed && { opacity: 0.75 },
                       ]}
                       onPress={() => updateTime(h, reminder.minute)}
                       accessibilityRole="radio"
@@ -199,10 +210,7 @@ export default function SettingsScreen() {
                       accessibilityState={{ selected }}
                     >
                       <AppText
-                        style={[
-                          styles.chipText,
-                          { color: selected ? Palette.primary : theme.text },
-                        ]}
+                        style={[styles.chipText, { color: selected ? Palette.primary : theme.text }]}
                         weight={selected ? 'semibold' : 'regular'}
                       >
                         {pad(h)}:00
@@ -212,9 +220,7 @@ export default function SettingsScreen() {
                 })}
               </View>
               <Spacer size="sm" />
-              <AppText secondary variant="caption" style={styles.timeLabel}>
-                Minuti
-              </AppText>
+              <AppText secondary variant="caption" style={styles.timeGroupLabel}>Minuti</AppText>
               <Spacer size="xs" />
               <View style={styles.chipRow}>
                 {([0, 30] as const).map((m) => {
@@ -222,10 +228,11 @@ export default function SettingsScreen() {
                   return (
                     <Pressable
                       key={m}
-                      style={[
+                      style={({ pressed }) => [
                         styles.chip,
                         { borderColor: selected ? Palette.primary : theme.border },
                         selected && { backgroundColor: Palette.primaryLight },
+                        pressed && { opacity: 0.75 },
                       ]}
                       onPress={() => updateTime(reminder.hour, m)}
                       accessibilityRole="radio"
@@ -233,10 +240,7 @@ export default function SettingsScreen() {
                       accessibilityState={{ selected }}
                     >
                       <AppText
-                        style={[
-                          styles.chipText,
-                          { color: selected ? Palette.primary : theme.text },
-                        ]}
+                        style={[styles.chipText, { color: selected ? Palette.primary : theme.text }]}
                         weight={selected ? 'semibold' : 'regular'}
                       >
                         :{pad(m)}
@@ -245,37 +249,39 @@ export default function SettingsScreen() {
                   );
                 })}
               </View>
+              <Spacer size="xs" />
             </>
           )}
-        </Card>
+        </View>
 
-        <Spacer size="lg" />
+        <Spacer size="xl" />
 
         {/* Tema */}
-        <AppText variant="label">Tema</AppText>
+        <AppText variant="label" style={[styles.sectionTitle, { color: theme.textSecondary }]}>
+          TEMA
+        </AppText>
         <Spacer size="sm" />
-        <Card padding="sm">
+        <View style={[styles.sectionCard, { backgroundColor: theme.surface }, Shadow.sm]}>
           <View style={styles.chipRow}>
             {THEME_OPTIONS.map((opt) => {
               const selected = themeMode === opt.value;
               return (
                 <Pressable
                   key={opt.value}
-                  style={[
+                  style={({ pressed }) => [
                     styles.chip,
                     { borderColor: selected ? Palette.primary : theme.border },
                     selected && { backgroundColor: Palette.primaryLight },
+                    pressed && { opacity: 0.75 },
                   ]}
                   onPress={() => setTheme(opt.value)}
                   accessibilityRole="radio"
                   accessibilityLabel={opt.label}
                   accessibilityState={{ selected }}
                 >
+                  <AppText style={styles.chipEmoji}>{opt.emoji}</AppText>
                   <AppText
-                    style={[
-                      styles.chipText,
-                      { color: selected ? Palette.primary : theme.text },
-                    ]}
+                    style={[styles.chipText, { color: selected ? Palette.primary : theme.text }]}
                     weight={selected ? 'semibold' : 'regular'}
                   >
                     {opt.label}
@@ -284,15 +290,19 @@ export default function SettingsScreen() {
               );
             })}
           </View>
-        </Card>
+        </View>
 
-        <Spacer size="lg" />
+        <Spacer size="xl" />
 
         {/* Disclaimer */}
-        <View style={[styles.disclaimer, { borderColor: theme.border }]}>
-          <AppText secondary variant="caption" style={styles.disclaimerText}>
-            🔒 Tutti i dati rimangono sul tuo dispositivo. Bussola non invia nulla esternamente e non sostituisce il supporto professionale.{'\n\n'}
-            In caso di emergenza chiama il 112.
+        <View style={[styles.disclaimer, { backgroundColor: Palette.primaryLight, borderColor: Palette.primaryMid + '40' }]}>
+          <AppText style={styles.disclaimerIcon}>🔒</AppText>
+          <AppText variant="caption" style={[styles.disclaimerText, { color: Palette.primaryDark }]}>
+            Tutti i dati rimangono sul tuo dispositivo. Bussola non invia nulla esternamente e non sostituisce il supporto professionale.{'\n\n'}
+            In caso di emergenza chiama il{' '}
+            <AppText style={[styles.disclaimerText, { color: Palette.primaryDark, fontWeight: '700' }]}>
+              112
+            </AppText>.
           </AppText>
         </View>
 
@@ -304,45 +314,72 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  scroll: { padding: Spacing.md },
+  heroHeader: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md + 2,
+  },
+  scroll: { padding: Spacing.md, paddingTop: Spacing.md },
+
+  sectionTitle: {
+    letterSpacing: 0.5,
+  },
+  sectionHint: {
+    marginTop: 2,
+    marginBottom: Spacing.xs,
+  },
+  sectionCard: {
+    borderRadius: Radius.xl,
+    padding: Spacing.md,
+  },
+
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.xs,
-    padding: Spacing.xs,
   },
   chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
     borderRadius: Radius.full,
     borderWidth: 1.5,
-    minHeight: TouchTarget.min - 8,
+    minHeight: 36,
     justifyContent: 'center',
   },
+  chipEmoji: { fontSize: 14 },
   chipText: { fontSize: FontSize.sm },
-  divider: { height: 1, marginHorizontal: -Spacing.sm },
-  sensitivityRow: {
+
+  divider: { height: 1, marginHorizontal: -Spacing.md },
+
+  rowItem: {
     flexDirection: 'row',
     alignItems: 'center',
     minHeight: TouchTarget.min,
     gap: Spacing.sm,
-    paddingHorizontal: Spacing.xs,
   },
-  sensitivityEmoji: { fontSize: 20, width: 28 },
-  sensitivityLabel: { flex: 1 },
-  reminderToggleRow: {
-    flexDirection: 'row',
+  emojiWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
-    minHeight: TouchTarget.min,
-    paddingHorizontal: Spacing.xs,
-    gap: Spacing.sm,
+    justifyContent: 'center',
+    flexShrink: 0,
   },
-  reminderToggleLeft: { flex: 1 },
-  timeLabel: { paddingHorizontal: Spacing.xs },
+  rowEmoji: { fontSize: 18 },
+  rowLabel: { flex: 1 },
+  reminderToggleText: { flex: 1 },
+  timeGroupLabel: { paddingHorizontal: 0 },
+
   disclaimer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
     borderWidth: 1,
-    borderRadius: Radius.md,
+    borderRadius: Radius.xl,
     padding: Spacing.md,
   },
-  disclaimerText: { lineHeight: 20 },
+  disclaimerIcon: { fontSize: 18, marginTop: 1 },
+  disclaimerText: { flex: 1, lineHeight: 20 },
 });

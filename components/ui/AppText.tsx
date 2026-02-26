@@ -3,7 +3,7 @@ import { Text, type TextProps, StyleSheet } from 'react-native';
 import { Colors, FontSize, FontWeight } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-type Variant = 'title' | 'heading' | 'body' | 'bodyLarge' | 'caption' | 'label';
+type Variant = 'title' | 'heading' | 'subheading' | 'body' | 'bodyLarge' | 'caption' | 'label';
 type Weight = 'regular' | 'medium' | 'semibold' | 'bold';
 
 interface AppTextProps extends TextProps {
@@ -24,8 +24,7 @@ export function AppText({
   const scheme = useColorScheme() ?? 'light';
   const theme = Colors[scheme];
 
-  const resolvedColor = color
-    ?? (secondary ? theme.textSecondary : theme.text);
+  const resolvedColor = color ?? (secondary ? theme.textSecondary : theme.text);
 
   return (
     <Text
@@ -40,12 +39,13 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.regular,
   },
   // Variants
-  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, lineHeight: 42 },
-  heading: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, lineHeight: 28 },
-  bodyLarge: { fontSize: FontSize.lg, fontWeight: FontWeight.regular, lineHeight: 26 },
+  title: { fontSize: FontSize.xxxl, fontWeight: FontWeight.bold, lineHeight: 44 },
+  heading: { fontSize: FontSize.xxl, fontWeight: FontWeight.bold, lineHeight: 34 },
+  subheading: { fontSize: FontSize.xl, fontWeight: FontWeight.semibold, lineHeight: 28 },
+  bodyLarge: { fontSize: FontSize.lg, fontWeight: FontWeight.regular, lineHeight: 28 },
   body: { fontSize: FontSize.md, fontWeight: FontWeight.regular, lineHeight: 24 },
   caption: { fontSize: FontSize.sm, fontWeight: FontWeight.regular, lineHeight: 20 },
-  label: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, lineHeight: 20 },
+  label: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, lineHeight: 20, letterSpacing: 0.3 },
   // Weights
   regular: { fontWeight: FontWeight.regular },
   medium: { fontWeight: FontWeight.medium },

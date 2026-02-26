@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import type { Strategy } from '@/content/strategies';
-import { Card } from '@/components/ui/Card';
 import { AppText } from '@/components/ui/AppText';
 import { Spacer } from '@/components/ui/Spacer';
-import { Colors, Palette, Spacing, Radius, FontSize } from '@/constants/theme';
+import { Colors, Palette, Spacing, Radius, FontSize, Shadow } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 interface SuggestionCardProps {
@@ -18,101 +17,160 @@ export function SuggestionCard({ strategy, onSelect }: SuggestionCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Card style={styles.card}>
-      <Pressable
-        onPress={() => setExpanded((v) => !v)}
-        style={({ pressed }) => pressed && { opacity: 0.8 }}
-        accessibilityRole="button"
-        accessibilityLabel={strategy.title}
-      >
-        <View style={styles.header}>
+    <View style={[styles.card, { backgroundColor: theme.surface }, Shadow.sm]}>
+      {/* Accent bar sinistra */}
+      <View style={[styles.accentBar, { backgroundColor: Palette.primary }]} />
+
+      <View style={styles.inner}>
+        {/* Header cliccabile */}
+        <Pressable
+          onPress={() => setExpanded((v) => !v)}
+          style={({ pressed }) => [styles.header, pressed && { opacity: 0.8 }]}
+          accessibilityRole="button"
+          accessibilityLabel={strategy.title}
+          accessibilityState={{ expanded }}
+        >
           <View style={styles.titleRow}>
             <AppText variant="bodyLarge" weight="semibold" style={styles.title}>
               {strategy.title}
             </AppText>
-            <AppText secondary style={styles.duration}>
-              {strategy.durationMinutes} min
-            </AppText>
+            <View style={[styles.durationPill, { backgroundColor: Palette.primaryLight }]}>
+              <AppText style={[styles.durationText, { color: Palette.primaryDark }]}>
+                {strategy.durationMinutes} min
+              </AppText>
+            </View>
           </View>
           <Spacer size="xs" />
-          <AppText secondary variant="body">
+          <AppText secondary variant="body" style={styles.description}>
             {strategy.shortDescription}
           </AppText>
-        </View>
+          <View style={styles.expandRow}>
+            <AppText style={[styles.expandLabel, { color: Palette.primaryMid }]}>
+              {expanded ? 'Nascondi passi' : 'Vedi come fare'}
+            </AppText>
+            <AppText style={[styles.chevron, { color: Palette.primaryMid }]}>
+              {expanded ? '▲' : '▼'}
+            </AppText>
+          </View>
+        </Pressable>
 
+        {/* Passi espansi */}
         {expanded && (
           <View style={styles.steps}>
-            <Spacer size="sm" />
             <View style={[styles.divider, { backgroundColor: theme.border }]} />
             <Spacer size="sm" />
             {strategy.steps.map((step, i) => (
               <View key={i} style={styles.stepRow}>
-                <View style={[styles.stepNumber, { backgroundColor: Palette.primaryLight }]}>
-                  <AppText
-                    style={{ color: Palette.primary, fontSize: FontSize.xs }}
-                    weight="bold"
-                  >
-                    {i + 1}
-                  </AppText>
+                <View style={styles.stepNumberCol}>
+                  <View style={[styles.stepCircle, { backgroundColor: Palette.primary }]}>
+                    <AppText style={styles.stepNum}>{i + 1}</AppText>
+                  </View>
+                  {i < strategy.steps.length - 1 && (
+                    <View style={[styles.stepConnector, { backgroundColor: Palette.primaryLight }]} />
+                  )}
                 </View>
-                <AppText variant="body" style={styles.stepText}>
+                <AppText variant="body" style={[styles.stepText, { color: theme.text }]}>
                   {step}
                 </AppText>
               </View>
             ))}
+            <Spacer size="xs" />
           </View>
         )}
-      </Pressable>
 
-      <Spacer size="sm" />
-      <Pressable
-        style={({ pressed }) => [
-          styles.selectButton,
-          { backgroundColor: Palette.primary },
-          pressed && { opacity: 0.8 },
-        ]}
-        onPress={() => onSelect(strategy)}
-        accessibilityRole="button"
-        accessibilityLabel={`Usa: ${strategy.title}`}
-      >
-        <AppText style={styles.selectLabel} weight="semibold">
-          Usa questa strategia
-        </AppText>
-      </Pressable>
-    </Card>
+        {/* CTA */}
+        <Spacer size="sm" />
+        <Pressable
+          style={({ pressed }) => [
+            styles.selectButton,
+            { backgroundColor: Palette.primary },
+            pressed && { opacity: 0.85 },
+          ]}
+          onPress={() => onSelect(strategy)}
+          accessibilityRole="button"
+          accessibilityLabel={`Usa: ${strategy.title}`}
+        >
+          <AppText style={styles.selectLabel} weight="semibold">
+            Usa questa strategia
+          </AppText>
+        </Pressable>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { marginBottom: Spacing.sm },
+  card: {
+    flexDirection: 'row',
+    borderRadius: Radius.xl,
+    marginBottom: Spacing.md,
+    overflow: 'hidden',
+  },
+  accentBar: {
+    width: 4,
+    flexShrink: 0,
+  },
+  inner: {
+    flex: 1,
+    padding: Spacing.md,
+  },
   header: {},
   titleRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    gap: Spacing.sm,
   },
-  title: { flex: 1, marginRight: Spacing.sm },
-  duration: { fontSize: FontSize.sm },
-  divider: { height: 1 },
+  title: { flex: 1, lineHeight: 24 },
+  durationPill: {
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: Radius.full,
+    flexShrink: 0,
+    marginTop: 2,
+  },
+  durationText: { fontSize: FontSize.xs, fontWeight: '600' },
+  description: { lineHeight: 22 },
+  expandRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: Spacing.xs + 2,
+  },
+  expandLabel: { fontSize: FontSize.sm, fontWeight: '500' },
+  chevron: { fontSize: 10, fontWeight: '600' },
+  divider: { height: 1, marginVertical: Spacing.xs },
   steps: {},
   stepRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     marginBottom: Spacing.sm,
   },
-  stepNumber: {
-    width: 24,
-    height: 24,
+  stepNumberCol: {
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+    width: 28,
+  },
+  stepCircle: {
+    width: 28,
+    height: 28,
     borderRadius: Radius.full,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: Spacing.sm,
-    marginTop: 2,
     flexShrink: 0,
   },
-  stepText: { flex: 1 },
+  stepNum: { color: '#FFFFFF', fontSize: FontSize.xs, fontWeight: '700' },
+  stepConnector: {
+    width: 2,
+    flex: 1,
+    minHeight: Spacing.sm,
+    borderRadius: 1,
+    marginTop: 3,
+    marginBottom: -Spacing.sm + 3,
+  },
+  stepText: { flex: 1, lineHeight: 22, paddingTop: 3 },
   selectButton: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.lg,
     paddingVertical: Spacing.sm + 4,
     alignItems: 'center',
   },

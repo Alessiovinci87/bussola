@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Pressable, StyleSheet } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
-import { Colors, Spacing, Radius, Palette, TouchTarget } from '@/constants/theme';
+import { Colors, Spacing, Radius, Palette, FontSize, TouchTarget } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import type { FeedbackValue } from '@/types';
 
@@ -23,54 +23,92 @@ export function FeedbackRow({ strategyId, onFeedback }: FeedbackRowProps) {
 
   if (selected) {
     return (
-      <View style={styles.row}>
-        <AppText secondary variant="caption">
-          {selected === 'useful' ? 'Grazie per il feedback!' : 'Capito, ci aiuterai a migliorare.'}
-        </AppText>
+      <View style={styles.confirmedRow}>
+        <View style={[styles.confirmedBadge, { backgroundColor: Palette.safeGreenLight }]}>
+          <AppText style={[styles.confirmedText, { color: Palette.safeGreen }]} weight="semibold">
+            {selected === 'useful'
+              ? '✓  Grazie per il feedback!'
+              : '✓  Capito, ci aiuterai a migliorare.'}
+          </AppText>
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.row}>
+    <View style={styles.container}>
       <AppText secondary variant="caption" style={styles.label}>
         È stata utile?
       </AppText>
-      <Pressable
-        style={({ pressed }) => [styles.btn, { borderColor: theme.border }, pressed && { opacity: 0.7 }]}
-        onPress={() => handleSelect('useful')}
-        accessibilityRole="button"
-        accessibilityLabel="Sì, utile"
-      >
-        <AppText style={styles.emoji}>👍</AppText>
-      </Pressable>
-      <Pressable
-        style={({ pressed }) => [styles.btn, { borderColor: theme.border }, pressed && { opacity: 0.7 }]}
-        onPress={() => handleSelect('not_useful')}
-        accessibilityRole="button"
-        accessibilityLabel="No, non utile"
-      >
-        <AppText style={styles.emoji}>👎</AppText>
-      </Pressable>
+      <View style={styles.btnRow}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.btn,
+            styles.btnYes,
+            { borderColor: Palette.safeGreen, backgroundColor: Palette.safeGreenLight },
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={() => handleSelect('useful')}
+          accessibilityRole="button"
+          accessibilityLabel="Sì, mi ha aiutato"
+        >
+          <AppText style={[styles.btnText, { color: Palette.safeGreen }]} weight="semibold">
+            👍  Sì, mi ha aiutato
+          </AppText>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [
+            styles.btn,
+            { borderColor: theme.border, backgroundColor: theme.surface },
+            pressed && { opacity: 0.7 },
+          ]}
+          onPress={() => handleSelect('not_useful')}
+          accessibilityRole="button"
+          accessibilityLabel="Non proprio"
+        >
+          <AppText style={[styles.btnText, { color: theme.textSecondary }]} weight="medium">
+            👎  Non proprio
+          </AppText>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
+  container: {
     marginTop: Spacing.sm,
   },
-  label: { flex: 1 },
+  label: {
+    marginBottom: Spacing.sm,
+  },
+  btnRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
   btn: {
-    width: TouchTarget.min,
-    height: TouchTarget.min,
-    borderRadius: Radius.md,
-    borderWidth: 1,
+    flex: 1,
+    minHeight: TouchTarget.min,
+    borderRadius: Radius.lg,
+    borderWidth: 1.5,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: Spacing.sm,
   },
-  emoji: { fontSize: 20 },
+  btnYes: {},
+  btnText: {
+    fontSize: FontSize.sm,
+  },
+  confirmedRow: {
+    marginTop: Spacing.sm,
+  },
+  confirmedBadge: {
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+  },
+  confirmedText: {
+    fontSize: FontSize.sm,
+  },
 });
