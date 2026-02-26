@@ -12,14 +12,11 @@ import type { SafetyResult } from '@/engines/safety/types';
  * @returns     Risultato safety corrente
  */
 export function useSafety(text: string): SafetyResult {
-  const { setResult, setLastCheckedText, currentLevel, currentScore, currentMatchedClusters } =
-    useSafetyStore((s) => ({
-      setResult: s.setResult,
-      setLastCheckedText: s.setLastCheckedText,
-      currentLevel: s.currentLevel,
-      currentScore: s.currentScore,
-      currentMatchedClusters: s.currentMatchedClusters,
-    }));
+  const setResult = useSafetyStore((s) => s.setResult);
+  const setLastCheckedText = useSafetyStore((s) => s.setLastCheckedText);
+  const currentLevel = useSafetyStore((s) => s.currentLevel);
+  const currentScore = useSafetyStore((s) => s.currentScore);
+  const currentMatchedClusters = useSafetyStore((s) => s.currentMatchedClusters);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
