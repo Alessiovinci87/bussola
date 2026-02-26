@@ -8,10 +8,11 @@ const config = getDefaultConfig(__dirname);
 // Usa il campo "exports" di package.json per risoluzione cross-platform
 config.resolver.unstable_enablePackageExports = true;
 
-// Su web: rimpiazza react-native-reanimated con uno stub compatibile.
-// reanimated v4 usa import.meta.url (ES module) per caricare web workers —
+// Su web: rimpiazza react-native-reanimated e react-native-worklets con stub compatibili.
+// Entrambe le librerie usano import.meta.url (ES module) per caricare web workers —
 // sintassi non supportata da Metro bundler (che genera bundle CJS/IIFE).
-// Lo stub espone la stessa API con no-op, senza import.meta.
+// Intercettiamo TUTTI i subpath (es. react-native-reanimated/src/xyz) perché
+// navigation o altre librerie possono importare da percorsi non previsti.
 const originalResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (platform === 'web') {
