@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import type { Strategy } from '@/content/strategies';
 import { Card } from '@/components/ui/Card';
 import { AppText } from '@/components/ui/AppText';
@@ -19,9 +19,9 @@ export function SuggestionCard({ strategy, onSelect }: SuggestionCardProps) {
 
   return (
     <Card style={styles.card}>
-      <TouchableOpacity
+      <Pressable
         onPress={() => setExpanded((v) => !v)}
-        activeOpacity={0.8}
+        style={({ pressed }) => pressed && { opacity: 0.8 }}
         accessibilityRole="button"
         accessibilityLabel={strategy.title}
       >
@@ -62,20 +62,23 @@ export function SuggestionCard({ strategy, onSelect }: SuggestionCardProps) {
             ))}
           </View>
         )}
-      </TouchableOpacity>
+      </Pressable>
 
       <Spacer size="sm" />
-      <TouchableOpacity
-        style={[styles.selectButton, { backgroundColor: Palette.primary }]}
+      <Pressable
+        style={({ pressed }) => [
+          styles.selectButton,
+          { backgroundColor: Palette.primary },
+          pressed && { opacity: 0.8 },
+        ]}
         onPress={() => onSelect(strategy)}
-        activeOpacity={0.8}
         accessibilityRole="button"
         accessibilityLabel={`Usa: ${strategy.title}`}
       >
         <AppText style={styles.selectLabel} weight="semibold">
           Usa questa strategia
         </AppText>
-      </TouchableOpacity>
+      </Pressable>
     </Card>
   );
 }

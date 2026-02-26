@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, ScrollView, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Spacer } from '@/components/ui/Spacer';
 import { Card } from '@/components/ui/Card';
@@ -14,7 +14,7 @@ export default function LearnScreen() {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         <AppText variant="heading" weight="bold">
           Errori comuni
         </AppText>
@@ -28,9 +28,9 @@ export default function LearnScreen() {
           const isOpen = expandedId === error.id;
           return (
             <Card key={error.id} style={styles.card}>
-              <TouchableOpacity
+              <Pressable
                 onPress={() => setExpandedId(isOpen ? null : error.id)}
-                activeOpacity={0.8}
+                style={({ pressed }) => pressed && { opacity: 0.8 }}
                 accessibilityRole="button"
                 accessibilityLabel={error.title}
                 accessibilityState={{ expanded: isOpen }}
@@ -49,7 +49,7 @@ export default function LearnScreen() {
                     "{error.myth}"
                   </AppText>
                 )}
-              </TouchableOpacity>
+              </Pressable>
 
               {isOpen && (
                 <View style={styles.detail}>

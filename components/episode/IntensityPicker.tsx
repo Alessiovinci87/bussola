@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Palette, Spacing, Radius, TouchTarget, FontSize } from '@/constants/theme';
 import type { Episode } from '@/types';
@@ -29,14 +29,14 @@ export function IntensityPicker({ value, onChange }: IntensityPickerProps) {
         {LEVELS.map((level) => {
           const selected = value === level.value;
           return (
-            <TouchableOpacity
+            <Pressable
               key={level.value}
-              style={[
+              style={({ pressed }) => [
                 styles.item,
                 selected && { backgroundColor: level.color + '22', borderColor: level.color },
+                pressed && { opacity: 0.75 },
               ]}
               onPress={() => onChange(level.value)}
-              activeOpacity={0.75}
               accessibilityRole="radio"
               accessibilityLabel={level.label}
               accessibilityState={{ selected }}
@@ -48,7 +48,7 @@ export function IntensityPicker({ value, onChange }: IntensityPickerProps) {
               >
                 {level.value}
               </AppText>
-            </TouchableOpacity>
+            </Pressable>
           );
         })}
       </View>

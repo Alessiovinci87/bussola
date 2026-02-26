@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, ScrollView, StyleSheet, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
+import { View, ScrollView, StyleSheet, SafeAreaView, Pressable, Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { AppText } from '@/components/ui/AppText';
 import { Spacer } from '@/components/ui/Spacer';
@@ -80,12 +80,22 @@ export default function EpisodeDetailScreen() {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Header */}
         <View style={styles.topBar}>
-          <TouchableOpacity onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Indietro">
+          <Pressable
+            onPress={() => router.back()}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+            accessibilityRole="button"
+            accessibilityLabel="Indietro"
+          >
             <AppText style={{ color: Palette.primary, fontSize: FontSize.md }}>← Indietro</AppText>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleDelete} accessibilityRole="button" accessibilityLabel="Elimina episodio">
+          </Pressable>
+          <Pressable
+            onPress={handleDelete}
+            style={({ pressed }) => pressed && { opacity: 0.7 }}
+            accessibilityRole="button"
+            accessibilityLabel="Elimina episodio"
+          >
             <AppText style={{ color: Palette.crisisRed, fontSize: FontSize.sm }}>Elimina</AppText>
-          </TouchableOpacity>
+          </Pressable>
         </View>
 
         <Spacer size="md" />

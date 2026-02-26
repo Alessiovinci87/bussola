@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { AppText } from '@/components/ui/AppText';
 import { Colors, Spacing, Radius, Palette, TouchTarget } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -36,24 +36,22 @@ export function FeedbackRow({ strategyId, onFeedback }: FeedbackRowProps) {
       <AppText secondary variant="caption" style={styles.label}>
         È stata utile?
       </AppText>
-      <TouchableOpacity
-        style={[styles.btn, { borderColor: theme.border }]}
+      <Pressable
+        style={({ pressed }) => [styles.btn, { borderColor: theme.border }, pressed && { opacity: 0.7 }]}
         onPress={() => handleSelect('useful')}
-        activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel="Sì, utile"
       >
         <AppText style={styles.emoji}>👍</AppText>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.btn, { borderColor: theme.border }]}
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [styles.btn, { borderColor: theme.border }, pressed && { opacity: 0.7 }]}
         onPress={() => handleSelect('not_useful')}
-        activeOpacity={0.7}
         accessibilityRole="button"
         accessibilityLabel="No, non utile"
       >
         <AppText style={styles.emoji}>👎</AppText>
-      </TouchableOpacity>
+      </Pressable>
     </View>
   );
 }

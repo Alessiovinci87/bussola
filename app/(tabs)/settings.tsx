@@ -4,7 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   SafeAreaView,
-  TouchableOpacity,
+  Pressable,
   Switch,
   Alert,
 } from 'react-native';
@@ -84,7 +84,7 @@ export default function SettingsScreen() {
             {AGE_RANGES.map((range) => {
               const selected = profile.childAgeRange === range.value;
               return (
-                <TouchableOpacity
+                <Pressable
                   key={range.value}
                   style={[
                     styles.chip,
@@ -105,7 +105,7 @@ export default function SettingsScreen() {
                   >
                     {range.label}
                   </AppText>
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
           </View>
@@ -186,7 +186,7 @@ export default function SettingsScreen() {
                 {REMINDER_HOURS.map((h) => {
                   const selected = reminder.hour === h;
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       key={h}
                       style={[
                         styles.chip,
@@ -207,7 +207,7 @@ export default function SettingsScreen() {
                       >
                         {pad(h)}:00
                       </AppText>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 })}
               </View>
@@ -220,7 +220,7 @@ export default function SettingsScreen() {
                 {([0, 30] as const).map((m) => {
                   const selected = reminder.minute === m;
                   return (
-                    <TouchableOpacity
+                    <Pressable
                       key={m}
                       style={[
                         styles.chip,
@@ -241,7 +241,7 @@ export default function SettingsScreen() {
                       >
                         :{pad(m)}
                       </AppText>
-                    </TouchableOpacity>
+                    </Pressable>
                   );
                 })}
               </View>
@@ -259,7 +259,7 @@ export default function SettingsScreen() {
             {THEME_OPTIONS.map((opt) => {
               const selected = themeMode === opt.value;
               return (
-                <TouchableOpacity
+                <Pressable
                   key={opt.value}
                   style={[
                     styles.chip,
@@ -280,7 +280,7 @@ export default function SettingsScreen() {
                   >
                     {opt.label}
                   </AppText>
-                </TouchableOpacity>
+                </Pressable>
               );
             })}
           </View>

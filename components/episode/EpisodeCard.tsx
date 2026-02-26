@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import type { Episode } from '@/types';
 import { Card } from '@/components/ui/Card';
 import { AppText } from '@/components/ui/AppText';
@@ -33,14 +33,16 @@ function formatDate(iso: string): string {
 
 export function EpisodeCard({ episode, onPress }: EpisodeCardProps) {
   const scheme = useColorScheme() ?? 'light';
-  const theme = Colors[scheme];
   const strategy = episode.strategyApplied
     ? getStrategyById(episode.strategyApplied)
     : undefined;
   const intensityColor = INTENSITY_COLORS[episode.intensity - 1];
 
   return (
-    <TouchableOpacity onPress={() => onPress(episode)} activeOpacity={0.8}>
+    <Pressable
+      onPress={() => onPress(episode)}
+      style={({ pressed }) => pressed && { opacity: 0.8 }}
+    >
       <Card style={styles.card}>
         <View style={styles.header}>
           <View style={[styles.intensityBadge, { backgroundColor: intensityColor + '22' }]}>
@@ -78,7 +80,7 @@ export function EpisodeCard({ episode, onPress }: EpisodeCardProps) {
           )}
         </View>
       </Card>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
